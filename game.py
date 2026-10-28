@@ -2,33 +2,67 @@ from board import Board
 
 
 class Game:
+    MOVES = {
+        "a": ("left", "move_left"),
+        "d": ("right", "move_right"),
+        "w": ("up", "move_up"),
+        "s": ("down", "move_down"),
+    }
+
     def __init__(self):
         self.board = Board()
-        self.best_score = 0
-        self.history = []
+        self.best_score = self.board.score
+        self._undo_state = None
+        self.last_feedback = ""
 
     def display(self):
-        print("\n" + "+------+------+------+------+")
+        print("\n+------+------+------+------+")
         for row in self.board.grid:
-            print("|" + "|".join(f"{x:^6}" if x else f"{' ':^6}" for x in row) + "|")
+            print("|" + "|".join(f"{value:^6}" if value else f"{' ':^6}"
+                                 for value in row) + "|")
             print("+------+------+------+------+")
-        print("Score:", self.board.score, " Best:", self.best_score)
+        print(f"Score: {self.board.score}  Best: {self.best_score}")
 
     def move(self, key):
-        moves = {"a": self.board.move_left, "d": self.board.move_right,
-                 "w": self.board.move_up, "s": self.board.move_down}
-        if key not in moves:
+        """Apply one direction. Feedback is produced only at this action level."""
+        if key not in self.MOVES:
+            self.last_feedback = "Invalid move. Use W/A/S/D."
             return False
-        changed = moves[key]()
-        if changed:
-            self.board.add_random_tile()
-        return changed
+
+        direction, method_name = self.MOVES[key]
+        before_grid = [row[:] for row in self.board.grid]
+        before_score = self.board.score
+        changed = getattr(self.board, method_name)()
+        if not changed:
+            self.last_feedback = "No tiles moved."
+            return False
+
+        self._undo_state = (before_grid, before_score)
+        merges = list(self.board.last_merges)
+        self.board.add_random_tile()
+        self.best_score = max(self.best_score, self.board.score)
+        self.last_feedback = f"Moved {direction}."
+        if merges:
+            self.last_feedback += " Merged " + ", ".join(map(str, merges)) + "."
+        return True
+
+    def undo(self):
+        if self._undo_state is None:
+            self.last_feedback = "There is no successful move to undo."
+            return False
+        grid, score = self._undo_state
+        self.board.grid = [row[:] for row in grid]
+        self.board.score = score
+        self.board.last_merges = []
+        self._undo_state = None
+        self.last_feedback = "Undid the last move."
+        return True
 
     def run(self):
-        print("2048 — W/A/S/D to move, U to undo, Q to quit.")
+        print("2048 - W/A/S/D to move, U to undo, Q to quit.")
         while True:
             self.display()
-            if any(2048 in row for row in self.board.grid):
+            if self.board.has_won():
                 print("You reached 2048!")
                 return
             if not self.board.can_move():
@@ -36,12 +70,11 @@ class Game:
                 return
             key = input("> ").strip().lower()
             if key == "q":
+                print("Thanks for playing.")
                 return
             if key == "u":
-                print("Undo is not implemented yet.")
+                self.undo()
+                print(self.last_feedback)
                 continue
-            if key not in "wasd":
-                print("Use W/A/S/D.")
-                continue
-            if self.move(key):
-                self.best_score = max(self.best_score, self.board.score)
+            self.move(key)
+            print(self.last_feedback)

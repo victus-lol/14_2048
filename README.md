@@ -1,101 +1,34 @@
-# Scenario 14 — 2048
+# Scenario 14: 2048
 
-A terminal 2048 implementation with directional movement and tile merging.
+A small terminal version of 2048. Use W, A, S, and D to move the tiles. Type U to undo the last successful move, and Q to quit.
 
-## Provided files
-
-- `main.py` — entry point.
-- `game.py` — game loop, commands, and game state.
-- `board.py` — grid movement and tile logic.
-- `requirements.txt` — dependency declaration.
-
-## Setup
+## Run
 
 ```bash
 python main.py
 ```
 
-No package installation is required.
+Python's standard library is enough; no packages need to be installed.
 
-## Before changing the code
+## What changed
 
-Run the starter and deliberately construct repeated-tile rows if possible. Read the
-board movement code and trace one complete move from input to tile creation.
+- Each tile can merge only once in a move. For example, four 2s become two 4s, not an 8.
+- New tiles appear only after a move changes the board. The game ends on a 2048 tile or when no legal moves remain.
+- U restores the board and score from the previous successful move. The best score is tracked for the current run.
+- A successful move reports its direction and any merges. Invalid and unchanged moves don't report a successful move.
 
-## Task 1 — Correct merge semantics
+## Check the game logic
 
-Fix the merge algorithm so an original tile can participate in at most one merge
-during a single move. Preserve normal compression and movement behaviour.
+Run `python -m unittest -v` from this directory. The checks cover normal movement, merge boundaries, unchanged moves, win and no-move states, undo, invalid input, and quitting.
 
-**Done when:** repeated patterns such as four equal tiles produce the standard 2048
-result, not a chain merge of a newly created tile in the same move.
+## Lab 4 submission
 
-## Task 2 — Finish game-state handling
+The updated code is in the repository root. The chat-history PDF is in `Lab-4/Lab4_Chat_History.pdf`; it links to the complete conversation.
 
-Implement win detection, no-move detection, and correct tile creation semantics.
-A move that leaves the board unchanged must not create a new tile.
+I missed recording the starter bug before making changes, so I have not added a clip pretending to be a before recording. The required after-gameplay recording still needs to be added to `Lab-4/` after running the game locally.
 
-**Done when:** reaching 2048 ends the game, a full board with no legal moves ends the
-game, and unchanged moves do not alter the board.
+## Lab submission recordings
 
-## Task 3 — Undo and best score
+The original-bug recording must be made before changing the starter files. A recording made after the fix cannot honestly show that earlier state. The supplied before recording is therefore still needed from the student. Record a 10-second after clip after running this version; show a merge, the score/feedback, and undo if possible.
 
-Add a one-level undo. Restoring a move must restore both board contents and score.
-Track the best score for the current run.
-
-**Done when:** one undo reverses exactly one successful move and does not create a tile.
-
-## Task 4 — Move feedback
-
-Add concise feedback for successful moves and merges. Do not trigger feedback merely
-because internal board-scanning functions were called.
-
-**Done when:** one accepted move produces one action-level result and invalid/unchanged
-moves do not claim that a move occurred.
-
-## Required testing
-
-Test ordinary slides, four-equal patterns, separated equal pairs, unchanged moves,
-2048 detection, no-move boards, undo, score restoration, invalid commands, and quitting.
-
-
-## LLM usage
-
-You may use an LLM during the lab. The goal is to use it as a coding assistant while
-retaining responsibility for understanding and testing the result.
-
-- Inspect the existing code before asking for changes.
-- Ask for explanations when you do not understand a proposed change.
-- Test generated code against the stated behaviour and edge cases.
-- Keep your complete LLM chat history for submission.
-- Do not replace the whole project with an unrelated implementation.
-- Keep all state in memory; do not add CSV, JSON, SQLite, or other persistence.
-
-## Submission checklist
-
-- [ ] Task 1 completed and the original defect was reproduced and fixed.
-- [ ] Tasks 2–4 completed and tested.
-- [ ] Boundary and invalid-input cases tested.
-- [ ] No unnecessary external dependencies added.
-- [ ] No persistent storage added.
-- [ ] Code remains understandable and modular.
-- [ ] Complete LLM chat-history link included.
-
-## Folder structure
-
-```text
-scenario-02-2048/
-├── README.md
-├── requirements.txt
-├── main.py
-├── game.py
-└── board.py
-```
-
-## Submission Checklist
-
-Submission is only the following three things:
-
-- [ ] A 10-second video of gameplay **before** your changes, showing the bug/broken behavior
-- [ ] A 10-second video of gameplay **after** your changes, showing the bug fixed and the new features working
-- [ ] The Chat/LLM used page link, with the complete chat history
+The assignment asks for a personal-account copy of the assigned repository. This folder contains the updated code; copy it into your personal fork and push it there. Do not open a pull request against SETAPESU26.
